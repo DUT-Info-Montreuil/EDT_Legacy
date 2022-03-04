@@ -1,0 +1,214 @@
+package EDT;
+
+import eu.webtoolkit.jwt.WDialog;
+import eu.webtoolkit.jwt.WContainerWidget;
+import eu.webtoolkit.jwt.WPushButton;
+import eu.webtoolkit.jwt.WLabel;
+import eu.webtoolkit.jwt.WBorderLayout;
+import eu.webtoolkit.jwt.WGridLayout;
+import eu.webtoolkit.jwt.Signal;
+import eu.webtoolkit.jwt.Signal.Listener;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+
+import javax.swing.*;
+
+import com.jgoodies.forms.layout.*;
+
+/**
+ * formulaire de gestion des profs
+ */
+@SuppressWarnings("serial")
+/*public class FormulaireProfs extends JDialog implements ActionListener {*/
+public class FormulaireProfs_wt extends WDialog {
+	EDTApplication_wt edtAppli;
+    ArrayList<Prof> profs;
+	ArrayList<WLabel> labelProf;
+	ArrayList<WPushButton> boutonModif;
+	ArrayList<WPushButton> boutonSuppr;
+	WPushButton b_ajouter;
+	WDialog dialog = this;
+	
+	FormulaireProfs_wt(EDTApplication_wt _edtAppli) {
+		/*super(_edtAppli, "Gestion des profs", true);*/
+		super("Gestion des profs");		
+		
+		/*//procedure qui masque et ferme la fenetre
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				edtAppli.mettreAJour();
+				dispose(); // on ferme la fenêtre
+			}
+		});*/
+		edtAppli=_edtAppli;
+		afficher();
+	}
+	
+	public void afficher() {
+		/*dispose();
+		String semaineEnCours=(String)(edtAppli.getListeSemaines().getSelectedItem());*/
+        String semaineEnCours=(String)(edtAppli.getListeSemaines().getValueText());
+        String[]tab=semaineEnCours.split("/");
+        int debutAnneeScolaire=Integer.parseInt(tab[2].substring(tab[2].length()-4,4));
+        if (Integer.parseInt(tab[1])<7) // on est avant juin : le début de l'année est l'année d'avant
+            debutAnneeScolaire--;
+        // on récupère tous les profs de l'admin (visibles et non visibles)
+        profs=new ArrayList<Prof>(edtAppli.getControleurDb().getProfsAdmin(edtAppli.getControleurDb().getIdAdmin(),debutAnneeScolaire, false));
+		/*JPanel panel=new JPanel();
+		panel.setLayout(new BorderLayout());*/
+		WContainerWidget panel = new WContainerWidget();
+		WBorderLayout border = new WBorderLayout();
+		panel.setLayout(border);
+		
+		/*b_ajouter=new JButton("Ajouter un nouveau prof");
+		b_ajouter.addActionListener(this);
+		panel.add(b_ajouter, BorderLayout.NORTH);*/
+		b_ajouter=new WPushButton("Ajouter");
+		b_ajouter.clicked().addListener(b_ajouter, new Signal.Listener() {
+			public void trigger() {
+					accept();
+					FormulaireSaisieProf_wt form = new FormulaireSaisieProf_wt(edtAppli, null, dialog);	
+			}				
+		});
+		b_ajouter.setStyleClass("btn-success");		
+		getFooter().addWidget(b_ajouter);
+		
+		/*JPanel panelProfs=new JPanel();*/
+		WContainerWidget panelProfs=new WContainerWidget();
+		
+		/*String formColonnes="CENTER:DEFAULT:NONE";
+        for (int i=1; i<profs.size(); i++)
+            formColonnes+=",CENTER:DEFAULT:NONE";
+        FormLayout formlayout1 = new FormLayout("FILL:500PX:GROW(1.0),FILL:130PX:NONE,FILL:130PX:NONE",formColonnes);
+        CellConstraints cc = new CellConstraints();*/
+        /*panelProfs.setLayout(formlayout1);*/
+        WGridLayout grid = new WGridLayout();
+        panelProfs.setLayout(grid);
+        
+        /*labelProf=new ArrayList<JLabel>();
+        boutonModif=new ArrayList<JButton>();
+        boutonSuppr=new ArrayList<JButton>();
+        JButton b;*/
+        labelProf=new ArrayList<WLabel>();
+        boutonModif=new ArrayList<WPushButton>();
+        boutonSuppr=new ArrayList<WPushButton>();
+        WPushButton b;
+        for (int i=0; i<profs.size(); i++) {
+        	/*labelProf.add(new WLabel(""+(profs.get(i)).getNom()+" "+(profs.get(i)).getPrenom()));*/        	
+        	Prof prof = profs.get(i);            
+            labelProf.add(new WLabel(""+ prof.getNom()+" "+ prof.getPrenom() ));
+            
+			/*b=new JButton("Modifier");
+			b.addActionListener(this);
+			boutonModif.add(b);*/            
+            b=new WPushButton("Modifier");
+            b.clicked().addListener(b, new Signal.Listener() {
+            		public void trigger() {
+            			accept();
+            			FormulaireSaisieProf_wt form = new FormulaireSaisieProf_wt(edtAppli, prof, dialog);
+            		}            		
+            });
+            b.setStyleClass("btn-info");            
+            boutonModif.add(b);
+            
+            /*b=new JButton("Supprimer");
+            b.addActionListener(this);
+            boutonSuppr.add(b);*/            
+            b=new WPushButton("Supprimer");
+            b.clicked().addListener(b, new Signal.Listener() {
+            		public void trigger() {
+            			WDialog confirmerSuppr = new WDialog("Suppression de prof");
+            			WLabel confirmerLabel = new WLabel("Confirmez-vous la suppression de "+prof.getPrenom()+" "+prof.getNom()+" ?", confirmerSuppr.getContents());
+            			WPushButton ok = new WPushButton("Oui", confirmerSuppr.getFooter());
+            			WPushButton annuler = new WPushButton("Non", confirmerSuppr.getFooter());
+            			
+            			ok.setStyleClass("btn-danger");
+            			annuler.setStyleClass("btn-primary");
+            			
+            			ok.clicked().addListener(ok, new Signal.Listener() {
+            				public void trigger() {
+            					confirmerSuppr.accept();
+            					edtAppli.getControleurDb().supprimerProf(prof);
+            					accept();
+            					FormulaireProfs_wt form = new FormulaireProfs_wt(edtAppli);
+            				}
+            			});
+            			annuler.clicked().addListener(annuler, new Signal.Listener() {
+            				public void trigger() {
+            					confirmerSuppr.reject();	
+            				}
+            			});
+            			
+            			confirmerSuppr.setClosable(true);
+            			confirmerSuppr.rejectWhenEscapePressed(true);
+            			confirmerSuppr.show();
+            		}
+            });
+            b.setStyleClass("btn-warning");
+            boutonSuppr.add(b);            
+        }
+        // on place le nom de la matière, un bouton modifier, un bouton supprimer
+        for (int index=0; index<profs.size(); index++) {
+            /*panelProfs.add(labelProf.get(index),cc.xy(1,index+1));
+            panelProfs.add(boutonModif.get(index),cc.xy(2,index+1));
+            panelProfs.add(boutonSuppr.get(index),cc.xy(3,index+1));*/
+            
+            grid.addWidget(labelProf.get(index), index, 0);
+            grid.addWidget(boutonModif.get(index), index, 1);
+            grid.addWidget(boutonSuppr.get(index), index, 2);
+        }
+
+        /*Utilitaire.addFillComponents(panelProfs,new int[0],new int[0]);*/
+
+		/*JScrollPane scroll=new JScrollPane(panelProfs);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+		panel.add(scroll, BorderLayout.CENTER);*/
+		
+		// on ajoute tout dans la fenetre
+		/*getContentPane().removeAll();
+		getContentPane().add(panel);*/
+		getContents().addWidget(panel);
+		getContents().addWidget(panelProfs);
+		
+		// positionner au centre de l'écran
+		/*pack();
+		setSize(Math.min(800, getWidth()), Math.min(800, getHeight()));
+		setResizable(true);
+		Rectangle rect=edtAppli.getBounds(); // getToolkit().getScreenSize();
+		setLocation(Math.max(0,(int)(rect.x+(rect.width-getWidth())/2)), Math.max(0,(int)(rect.y+(rect.height-getHeight())/2)));
+		setVisible(true);*/
+		this.setResizable(true);
+		this.setClosable(true);
+		this.rejectWhenEscapePressed(true);
+		this.resize(500, 500);
+		this.show();
+	}
+
+	/*public void actionPerformed(ActionEvent e) {
+		JButton b = (JButton)e.getSource();
+		if (b.equals(b_ajouter)) {
+			FormulaireSaisieProf form=new FormulaireSaisieProf(edtAppli, null, this);
+			form.setVisible(true);
+		}
+		else if (boutonModif.contains(b)) {
+			int index=boutonModif.indexOf(b);
+			Prof p=(Prof)profs.get(index);
+			FormulaireSaisieProf form=new FormulaireSaisieProf(edtAppli, p, this);
+			form.setVisible(true);
+		}
+		else if (boutonSuppr.contains(b)) {
+			int index=boutonSuppr.indexOf(b);
+			Prof p=(Prof)profs.get(index);
+			int reponse=JOptionPane.showConfirmDialog(this, "Confirmer la suppression de "+p.getPrenom() + " " + p.getNom(), "Suppression d'un prof", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if (reponse==JOptionPane.YES_OPTION) { // on supprime le prof
+				edtAppli.getControleurDb().supprimerProf(p);
+			}
+		}
+		afficher();
+	}*/
+	
+}

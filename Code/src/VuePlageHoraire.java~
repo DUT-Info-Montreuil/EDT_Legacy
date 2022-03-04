@@ -1,0 +1,76 @@
+package EDT;
+//PB
+
+import eu.webtoolkit.jwt.WPaintedWidget;
+import eu.webtoolkit.jwt.WPaintDevice;
+
+public class VuePlageHoraire extends WPaintedWidget{
+
+	/*private PlageHoraire plage;
+	private EDTApplication_wt edtAppli;
+	
+	public VuePlageHoraire(EDTApplication_wt edtAppli,PlageHoraire plage){
+		this.plage=plage;
+		this.edtAppli=edtAppli;
+	}
+	
+	public void dessinerPlage(WPainter painter, Graphics g,int x,int y){
+		int idGroupe, idMatiere, idProf, idProfAppel, idSalle, idSalle2=0; //, largeurChaine, hauteurChaine;
+		GregorianCalendar dateDebut, dateFin;
+		String memo="";
+		Groupe groupe=null;
+		Matiere matiere=null;
+		Prof prof=null, profAppel=null;
+		Salle salle=null, salle2=null;
+		dateDebut = plage.getDateDebut();
+		dateFin = plage.getDateFin();
+		memo=plage.getMemo();
+		idSalle = plage.getIdSalle();
+		idGroupe = plage.getIdGroupe();
+		idMatiere = plage.getIdMatiere();
+		idProf = plage.getIdProf();
+		idProfAppel = plage.getIdProfQuiFaitAppel();
+		ArrayList informations=edtAppli.getControleurDb().getInformationsPourVue((String)(edtAppli.getListePromotions().getValueText()),idSalle, idGroupe, idMatiere, idProf, idProfAppel);//SelectedItem()),idSalle, idGroupe, idMatiere, idProf, idProfAppel);
+		salle = (Salle)informations.get(0);
+		idSalle2=plage.getIdSalle2();
+		if (idSalle2>0) salle2 = edtAppli.getControleurDb().getSalle(idSalle2);
+		if (idProf==0 && idProfAppel!=0) { // on cherche la salle du prof qui fait l'appel
+			String nomSalleDuProfQuiFaitAppel=edtAppli.getControleurDb().getSalleAppel((int)(dateDebut.getTimeInMillis()/1000), (int)(dateFin.getTimeInMillis()/1000), idProfAppel);
+			if (nomSalleDuProfQuiFaitAppel.length()>0)
+				if (idSalle>0)
+					salle.setNom(salle.getNom()+" (" + nomSalleDuProfQuiFaitAppel + ")");
+				else salle.setNom(" (" + nomSalleDuProfQuiFaitAppel + ")");
+		}
+		if(informations.size()>1) {
+			groupe = (Groupe)informations.get(1);
+			if(informations.size()>2) {
+				matiere = (Matiere)informations.get(2);
+				if(informations.size()>3) {
+					prof = (Prof)informations.get(3);
+					if(informations.size()>4) {
+						profAppel = (Prof)informations.get(4);
+					}
+				}
+			}
+		}
+		// calcul des coordonnÃ©es
+		int numero_jour = dateDebut.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
+		// 0 pour lundi, ..., 4 pour vendredi
+		float heure_debut = dateDebut.get(Calendar.HOUR_OF_DAY) + dateDebut.get(Calendar.MINUTE) / (float)60;
+		float heure_fin = dateFin.get(Calendar.HOUR_OF_DAY) + dateFin.get(Calendar.MINUTE) / (float)60;
+		// attention aux jours fÃ©riÃ©s qui n'ont pas de groupe !!!!
+		int larg;
+		float posx;
+		/*if (idGroupe>0) {
+			posx=groupe.getIndexColonne() * nbTP / (float)nbColonnesVirtuelles;
+			larg=(int) (0.5+groupe.getNbColonnes() * largeurPlageTP * nbTP / (float)nbColonnesVirtuelles);
+		}
+		else {
+			posx=0;
+			larg=largeurJour; 
+		
+	}*/
+	
+	public void paintEvent(WPaintDevice paintDevice){
+	}
+}

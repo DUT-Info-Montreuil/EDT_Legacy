@@ -1,0 +1,88 @@
+<project name="e2dt-test" default="all" basedir=".">
+  <!-- Name of project and version -->
+  <property name="proj.name" value="e2dt-test"/>
+
+  <!-- Global properties for this build -->
+  <property name="jwt.dir" value=".."/>
+  <property name="src.dir" value="src"/>
+  <property name="lib.dir" value="lib"/>
+  <property name="build.dir" value="build"/>  
+  
+  <!-- Global properties for this build (server-side) -->
+  <property name="jetty.dir" value="/var/lib/jetty9"/>
+  <property name="jetty-webapps.dir" value="${jetty.dir}/webapps"/>
+  <property name="jetty-webappsrc.dir" value="${jetty.dir}/webappsrc"/>
+  
+  <!-- Classpath declaration -->
+  <path id="project.classpath">
+    <fileset dir="." />
+    <fileset dir="${jwt.dir}/dist" />
+    <fileset dir="${jwt.dir}/lib" />
+    <fileset dir="${jwt.dir}/lib/servlet-api" />
+  </path>
+
+  
+  <target name="all" depends="dist">
+  </target>
+  
+  
+  <!-- Clean up -->
+  <target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete dir="${lib.dir}"/>
+  </target>
+
+  
+  <!-- Compile Java source -->
+  <target name="build">
+		<ant dir="${jwt.dir}" target="all" inheritAll="false"/>
+		
+		<mkdir dir="${lib.dir}"/>
+		<copy todir="${lib.dir}">
+		  <fileset dir="${jwt.dir}/dist" />
+		  <fileset dir="${jwt.dir}/lib" 
+			   includes="*.jar servlet-api/*.jar"/>
+		</copy>
+	
+		<mkdir dir="${build.dir}"/>		
+		<javac 
+		   srcdir="${src.dir}"
+		   destdir="${build.dir}"
+		   debug="on"
+		   source="1.8"
+		   target="1.8"
+		   includeantruntime="false">
+		  <classpath refid="project.classpath"/>
+		</javac>
+  </target>
+  
+  
+  
+  <!-- Export to server -->
+  <target name="dist" depends="build" >
+  		<!--proj vers webapps/proj-->
+  		<copy todir="${build.dir}">
+		  <fileset dir="${src.dir}"
+				  	includes="**/*.xml,**/*.properties,**/*.csv,**/*.ttf" />
+		</copy>   
+		
+		<war destfile="${jetty-webapps.dir}/${proj.name}.war" 
+		 webxml="WebRoot/WEB-INF/web.xml">
+			<fileset dir="WebRoot"/>
+			<lib dir="${lib.dir}" 
+				includes="**/*.jar" 
+				excludes="servlet-api-*.jar">
+				</lib>
+			<classes dir="${build.dir}"/>
+			<!--src ds le .war? :>
+			<fileset dir="${src.dir}"/-->
+		 </war>
+		 
+		<!--src vers webappsrc/proj-->
+		<mkdir dir="${jetty-webappsrc.dir}/${proj.name}"/>
+		<copy todir="${jetty-webappsrc.dir}/${proj.name}">
+		  <fileset dir="${src.dir}" />
+		</copy>
+  </target>
+  
+</project>

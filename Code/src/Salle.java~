@@ -1,0 +1,63 @@
+package EDT;
+
+public class Salle implements Comparable {
+	private int id;
+	private String nom;
+	private int nb_places;
+	private int nb_ordinateurs;
+	private boolean videoprojecteur;
+/*	public Salle(int _id, String _nom) {
+		id= _id;
+		nom= _nom;
+	}
+*/    public Salle(int _id, String _nom, int _nb_places, int _nb_ordinateurs, boolean _videoprojecteur) {
+        id= _id;
+        nom= _nom;
+        nb_places=_nb_places;
+        nb_ordinateurs=_nb_ordinateurs;
+        videoprojecteur=_videoprojecteur;
+    }
+	public String getNom() {
+		return nom;
+	}
+	public String toString() {
+		if (id==0) return "";
+		else {
+		    String resultat=nom;
+		    if (nb_places>0) resultat+=" " + nb_places + "pl.";
+            if (videoprojecteur) resultat+=" Vidéo";
+            if (nb_ordinateurs>0) resultat+=" " + nb_ordinateurs + "PC";		    
+		    return resultat;
+		}
+	}
+	public int compareTo(Object o) {
+		return nom.compareTo(((Salle)o).nom);
+	}
+	public boolean equals(Object o) {
+		return id==((Salle)o).id; // || nom.equals(((Salle)o).nom);
+	}
+	public int getIdSalle() {
+		return id;
+	}
+	public void setNom(String nouveauNom) {
+		nom=nouveauNom;
+	}
+	public int getNbPlaces() {
+		return nb_places;
+	}
+	public void setNbPlaces(int nbPlaces) {
+		nb_places = nbPlaces;
+	}
+	public int getNbOrdinateurs() {
+		return nb_ordinateurs;
+	}
+	public void setNbOrdinateurs(int nbOrdinateurs) {
+		nb_ordinateurs = nbOrdinateurs;
+	}
+	public boolean getVideoprojecteur() {
+		return videoprojecteur;
+	}
+	public void setVideoprojecteur(boolean videoprojecteur) {
+		this.videoprojecteur = videoprojecteur;
+	}
+}

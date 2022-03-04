@@ -1,0 +1,45 @@
+//package EDT;
+package eu.webtoolkit.jwt.examples.hello;
+
+import eu.webtoolkit.jwt.WContainerWidget;
+import eu.webtoolkit.jwt.WPaintDevice;
+import eu.webtoolkit.jwt.WPainter;
+import eu.webtoolkit.jwt.WColor;
+import eu.webtoolkit.jwt.WBrush;
+import eu.webtoolkit.jwt.WLength;
+import eu.webtoolkit.jwt.WBorder;
+
+import eu.webtoolkit.jwt.WPaintedWidget;
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
+
+
+class PreviewColor extends WPaintedWidget {
+	private int r_, v_, b_;
+  
+	PreviewColor(int width, int height) {
+		super();
+		this.resize(new WLength(width), new WLength(height));
+		getDecorationStyle().setBorder(new WBorder(WBorder.Style.Solid, WBorder.Width.Thin, WColor.black));
+	}
+	
+	PreviewColor() {
+		super();
+	}
+	
+	void setColor(int r, int v, int b) {
+		this.r_ = r;
+		this.v_ = v;
+		this.b_ = b;
+		getDecorationStyle().setBackgroundColor(new WColor(r_, v_, b_));
+		this.update();
+	}
+	
+	protected void paintEvent(WPaintDevice paintDevice) {
+		/*WPainter painter = new WPainter(paintDevice);
+		painter.setBrush(new WBrush(new WColor(r_, v_, b_)));
+		painter.drawRect(0, 0, 100, 100);*/
+	}
+}
